@@ -1,0 +1,20 @@
+{
+  "name": "x2sql",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-windows": "bash build-windows.sh",
+    "patch": "npm version patch -m \"version %s\""
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^9.5.0",
+    "xml2js": "^0.4.23"
+  }
+}

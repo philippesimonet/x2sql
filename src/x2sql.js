@@ -3,7 +3,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const xml2js = require('xml2js');
-const _version = require('./version');
+const {_version} = require('./version');
 const { Command } = require('commander');
 
 let sqlstr = '';
@@ -22,11 +22,11 @@ async function main () {
 	const program = new Command();
 	program
 		.name('xml to sql')
-		.description('CLI conversion xml zo sqlauthor: philippe simonet')
-		.addHelpText('after',
-			`\n\n xxx, \n` +
-			'  xxx ')
-		// .version('version : ' + _version)
+		.description('CLI conversion xml zo sqlauthor: philippe simonet, version:' + _version)
+		// .addHelpText('after',
+		// 	`\n\n xxx, \n` +
+		// 	'  xxx ')
+		.version('version : ' + _version)
 		.option('--dataPath <datapath>', 'path of xml files', './')
 		.option('--fileFilter <fileFilter>', 'file filter patter (regexp)', '.*')
 		.option('--output <output>', 'output sql file', 'out.sql')
@@ -69,22 +69,26 @@ INSERT INTO \`${tablename}\` (\`type\`, \`msecs\`, \`type2\`, \`value\`, \`units
 `;
 
 		xml2js.parseString(xmlstr,
-			{explicitArray:false, trim: true, mergeAttrs:true},
+			// {explicitArray:false, trim: true, mergeAttrs:true},
+			{explicitArray:true, trim: true, mergeAttrs:true},	// explicit array to true allows to force array event for 1 element avt or param
 			function (err, result) {
 				if (err) {
 					throw err;
 				} else {
+					if (!result?.eventList?.evt) return;
 					result?.eventList?.evt.forEach((evt) => {
+						if (!evt?.param) return;
+						// console.log(evt.param);
 						evt?.param.forEach((param) => {
 							// console.log(fkey, evt.type, evt.msecs, param.type, param.value ||'-', param.units ||'-');
-							sqlstr += `('${evt.type}',${evt.msecs},'${param.type}','${param.value ||''}','${param.units ||''}'),\n`;
+							sqlstr += `('${evt.type[0]}',${evt.msecs[0]},'${param.type[0]}','${param.value?.[0] ||''}','${param.units?.[0] ||'' }'),\n`;
 
 							// some statistics
-							if (types[evt.type] === undefined) {
-								types[evt.type] = {};
+							if (types[evt.type[0]] === undefined) {
+								types[evt.type[0]] = {};
 							}
 							// types[evt.type]++;
-							types[evt.type][param.type] = param.units;
+							types[evt.type[0]][param.type[0]] = param.units?.[0];
 						});
 					})
 				}
@@ -100,7 +104,6 @@ INSERT INTO \`${tablename}\` (\`type\`, \`msecs\`, \`type2\`, \`value\`, \`units
 		sqlstr,
 		{	encoding: "utf8", flag: "w"}
 	);
-
 
 	// const xmlstr = fs.readFileSync(xmlfile, {encoding:'utf8', flag:'r'});
 	// console.log(sqlstr);

@@ -30,7 +30,7 @@ async function main () {
 		.option('--dataPath <datapath>', 'path of xml files', './')
 		.option('--fileFilter <fileFilter>', 'file filter patter (regexp)', '.*')
 		.option('--output <output>', 'output sql file', 'out.sql')
-		.option('--tablePrefix <output>', 'sql table prefix', 'test_')
+		.option('--tablePrefix <output>', 'sql table prefix', '')
 
 	program.parse();
 	const options = program.opts();
